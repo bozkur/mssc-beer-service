@@ -4,6 +4,7 @@ import guru.springframework.msscbeerservice.web.model.BeerDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -21,7 +22,7 @@ public class BeerController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> createNewBeer(@RequestBody BeerDto beer) {
+    public ResponseEntity<Void> createNewBeer(@Validated @RequestBody BeerDto beer) {
         //TODO impl.
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set("Location", "/api/v1/beer/" + UUID.randomUUID());
@@ -30,7 +31,7 @@ public class BeerController {
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping({"/{beerId}"})
-    public void updateBeerById(@PathVariable UUID beerId, @RequestBody BeerDto beer) {
+    public void updateBeerById(@PathVariable UUID beerId, @Validated @RequestBody BeerDto beer) {
         //TODO Impl
     }
 

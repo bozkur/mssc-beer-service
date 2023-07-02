@@ -8,7 +8,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -16,8 +15,6 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.math.BigDecimal;
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @WebMvcTest(BeerController.class)
 class BeerControllerTest {
@@ -52,8 +49,8 @@ class BeerControllerTest {
     private BeerDto createBeer() {
         return BeerDto.builder().beerName("Edelmeister")
                 .beerStyle(BeerStyle.LAGER)
-                .id(UUID.randomUUID())
                 .price(new BigDecimal("12.0"))
+                .upc(1L)
                 .build();
     }
 
@@ -61,7 +58,8 @@ class BeerControllerTest {
     @DisplayName("Update a beer with its id")
     void shouldUpdateBeerById() throws Exception {
         BeerDto beer = createBeer();
-        mockMvc.perform(MockMvcRequestBuilders.put(BEER_API_URL + "/" + beer.getId())
+        UUID id = UUID.randomUUID();
+        mockMvc.perform(MockMvcRequestBuilders.put(BEER_API_URL + "/" +id)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(beer)))
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
