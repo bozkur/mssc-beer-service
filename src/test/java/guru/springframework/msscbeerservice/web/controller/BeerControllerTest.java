@@ -1,6 +1,7 @@
 package guru.springframework.msscbeerservice.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import guru.springframework.msscbeerservice.services.BeerService;
 import guru.springframework.msscbeerservice.web.model.BeerDto;
 import guru.springframework.msscbeerservice.web.model.BeerStyle;
 import org.hamcrest.Matchers;
@@ -8,8 +9,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
@@ -25,6 +28,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
@@ -43,6 +47,9 @@ class BeerControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockBean
+    private BeerService beerService;
+
     @BeforeEach
     public void setUp(WebApplicationContext webApplicationContext,
                       RestDocumentationContextProvider restDocumentation) {
@@ -55,6 +62,9 @@ class BeerControllerTest {
     @DisplayName("Get beer by its id.")
     void shouldGetBeerById() throws Exception {
         UUID beerId = UUID.randomUUID();
+        BeerDto expectedBeerDto = createBeer();
+        expectedBeerDto.setId(beerId);
+        when(beerService.getBeerById(beerId)).thenReturn(expectedBeerDto);
         mockMvc.perform(get(BEER_API_URL + "/{beerId}", beerId).param("iscold", "yes"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.equalTo(beerId.toString())))
@@ -70,20 +80,24 @@ class BeerControllerTest {
                                 fieldWithPath("upc").description("UPC number of the beer"),
                                 fieldWithPath("quantityInHand").description("Quantity of the beer in the store"),
                                 fieldWithPath("price").description("Price of the beer")
-                                )
-                        ));
+                        )
+                ));
     }
 
     @Test
     @DisplayName("Create a new beer")
     void shouldCreateNewBeer() throws Exception {
         BeerDto beer = createBeer();
+        BeerDto savedBeer = createBeer();
+        savedBeer.setId(UUID.randomUUID());
+        when(beerService.saveNewBeer(ArgumentMatchers.any())).thenReturn(savedBeer);
         ConstrainedFields fields = new ConstrainedFields(BeerDto.class);
+        String expectedLocationHeader = "/api/v1/beer/" + savedBeer.getId().toString();
         mockMvc.perform(post(BEER_API_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(beer)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(beer)))
                 .andExpect(MockMvcResultMatchers.status().isCreated())
-                .andExpect(MockMvcResultMatchers.header().exists("Location"))
+                .andExpect(MockMvcResultMatchers.header().stringValues("Location",expectedLocationHeader))
                 .andDo(document("v1/beer-new",
                         requestFields(
                                 fields.withPath("id").ignored(),
@@ -110,9 +124,9 @@ class BeerControllerTest {
     void shouldUpdateBeerById() throws Exception {
         BeerDto beer = createBeer();
         UUID id = UUID.randomUUID();
-        mockMvc.perform(put(BEER_API_URL + "/" +id)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(beer)))
+        mockMvc.perform(put(BEER_API_URL + "/" + id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(beer)))
                 .andExpect(MockMvcResultMatchers.status().isNoContent());
     }
 
