@@ -65,13 +65,16 @@ class BeerControllerTest {
         UUID beerId = UUID.randomUUID();
         BeerDto expectedBeerDto = createBeer();
         expectedBeerDto.setId(beerId);
-        when(beerService.getBeerById(beerId)).thenReturn(expectedBeerDto);
-        mockMvc.perform(get(BEER_API_URL + "/{beerId}", beerId).param("iscold", "yes"))
+        when(beerService.getBeerById(beerId, false)).thenReturn(expectedBeerDto);
+        mockMvc.perform(get(BEER_API_URL + "/{beerId}", beerId).param("iscold", "yes")
+                        .param("showInventoryOnHand", "false"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.equalTo(beerId.toString())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.quantityInHand", Matchers.equalTo(null)))
                 .andDo(document("v1/beer-get",
                         pathParameters(parameterWithName("beerId").description("UUID of the desired beer to get.")),
-                        queryParameters(parameterWithName("iscold").description("Is beer Cold Query Param")),
+                        queryParameters(parameterWithName("iscold").description("Is beer Cold Query Param"),
+                                parameterWithName("showInventoryOnHand").description("Indicates whether beer records will contain inventory options")),
                         responseFields(
                                 fieldWithPath("id").description("Id of the beer"),
                                 fieldWithPath("createdDate").description("Creation date for the beer record"),
@@ -83,6 +86,22 @@ class BeerControllerTest {
                                 fieldWithPath("price").description("Price of the beer")
                         )
                 ));
+    }
+
+    @Test
+    @DisplayName("Get beer by its id when inventory information is not requested.")
+    void shouldGetBeerByIdWhenInventoryIsRequested() throws Exception {
+        UUID beerId = UUID.randomUUID();
+        BeerDto expectedBeerDto = createBeer();
+        expectedBeerDto.setId(beerId);
+        int quantity = 11;
+        expectedBeerDto.setQuantityInHand(quantity);
+        when(beerService.getBeerById(beerId, true)).thenReturn(expectedBeerDto);
+        mockMvc.perform(get(BEER_API_URL + "/{beerId}", beerId).param("iscold", "yes")
+                        .param("showInventoryOnHand", "true"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.equalTo(beerId.toString())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.quantityInHand", Matchers.equalTo(quantity)));
     }
 
     @Test
