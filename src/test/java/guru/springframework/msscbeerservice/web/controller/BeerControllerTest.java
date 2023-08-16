@@ -105,6 +105,17 @@ class BeerControllerTest {
     }
 
     @Test
+    @DisplayName("Get beer by upc")
+    void shouldGetBeerByUpc() throws Exception {
+        BeerDto expectedBeerDto = createBeer();
+        String upc = expectedBeerDto.getUpc();
+        when(beerService.getBeerByUpc(upc)).thenReturn(expectedBeerDto);
+        mockMvc.perform(get("/api/v1/beerUpc/{upc}", upc))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.upc", Matchers.equalTo(upc)));
+    }
+
+    @Test
     @DisplayName("Create a new beer")
     void shouldCreateNewBeer() throws Exception {
         BeerDto beer = createBeer();
