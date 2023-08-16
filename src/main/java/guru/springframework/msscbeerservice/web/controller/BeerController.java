@@ -17,7 +17,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping({"/api/v1/beer"})
+@RequestMapping({"/api/v1/"})
 public class BeerController {
 
     private static final int DEFAULT_PAGE_SIZE = 25;
@@ -25,7 +25,7 @@ public class BeerController {
 
     private final BeerService beerService;
 
-    @GetMapping(produces = {"application/json"})
+    @GetMapping(produces = {"application/json"}, path = "beer")
     public ResponseEntity<BeerPagedList> listBeers(Integer pageNumber, Integer pageSize,
                                                    String beerName, BeerStyle beerStyle,
                                                    @RequestParam(required = false) Boolean showInventoryOnHand) {
@@ -37,16 +37,23 @@ public class BeerController {
             pageSize = DEFAULT_PAGE_SIZE;
         }
 
+        if (showInventoryOnHand == null) {
+            showInventoryOnHand = false;
+        }
+
         BeerPagedList beerList = beerService.listBeers(beerName, beerStyle, PageRequest.of(pageNumber, pageSize), showInventoryOnHand);
         return new ResponseEntity<>(beerList, HttpStatus.OK);
     }
-    @GetMapping({"/{beerId}"})
+    @GetMapping({"beer/{beerId}"})
     public ResponseEntity<BeerDto> getBeerById(@PathVariable UUID beerId, @RequestParam(required = false) Boolean showInventoryOnHand) {
+        if(showInventoryOnHand == null) {
+            showInventoryOnHand = false;
+        }
         BeerDto beerDto = beerService.getBeerById(beerId, showInventoryOnHand);
         return new ResponseEntity<>(beerDto, HttpStatus.OK);
     }
 
-    @PostMapping
+    @PostMapping("beer")
     public ResponseEntity<BeerDto> createNewBeer(@Validated @RequestBody BeerDto beer) {
         BeerDto saved = beerService.saveNewBeer(beer);
         HttpHeaders httpHeaders = new HttpHeaders();
@@ -54,14 +61,14 @@ public class BeerController {
         return new ResponseEntity<>(saved, httpHeaders, HttpStatus.CREATED);
     }
 
-    @PutMapping({"/{beerId}"})
+    @PutMapping({"beer/{beerId}"})
     public ResponseEntity<BeerDto> updateBeerById(@PathVariable UUID beerId, @Validated @RequestBody BeerDto beer) {
         BeerDto updated = beerService.updateBeer(beerId, beer);
         return new ResponseEntity<>(updated, HttpStatus.NO_CONTENT);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping({"/{beerId}"})
+    @DeleteMapping({"beer/{beerId}"})
     public void deleteBeer(@PathVariable UUID beerId) {
         beerService.deleteById(beerId);
     }

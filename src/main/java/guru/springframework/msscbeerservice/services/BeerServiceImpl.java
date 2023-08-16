@@ -8,6 +8,8 @@ import guru.springframework.msscbeerservice.web.model.BeerDto;
 import guru.springframework.msscbeerservice.web.model.BeerPagedList;
 import guru.springframework.msscbeerservice.web.model.BeerStyle;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -19,12 +21,16 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BeerServiceImpl implements BeerService {
     private final BeerRepository beerRepository;
     private final BeerMapper beerMapper;
 
+
+    @Cacheable(cacheNames = "beerCache", key = "#beerId", condition = "#showInventoryOnHand == false")
     @Override
     public BeerDto getBeerById(UUID beerId, Boolean showInventoryOnHand) {
+        log.info("Getting beer with id {}", beerId);
         Beer beer = beerRepository.findById(beerId).orElseThrow(NotFoundException::new);
         return (showInventoryOnHand == null || !showInventoryOnHand) ? beerMapper.beer2BeerDto(beer) : beerMapper.beer2BeerDtoWithInventory(beer);
     }
@@ -51,9 +57,10 @@ public class BeerServiceImpl implements BeerService {
         beerRepository.deleteById(beerId);
     }
 
+    @Cacheable(cacheNames = "beerListCache", condition = "#showInventoryOnHand == false")
     @Override
     public BeerPagedList listBeers(String beerName, BeerStyle beerStyle, PageRequest pageRequest, Boolean showInventoryOnHand) {
-
+        log.info("Listing beers...");
         String beerStyleStr = (beerStyle == null) ? null : beerStyle.toString();
         Page<Beer> beerPage;
         if(StringUtils.hasText(beerName) && StringUtils.hasText(beerStyleStr)) {

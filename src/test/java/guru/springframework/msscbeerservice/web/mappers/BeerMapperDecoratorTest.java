@@ -27,12 +27,12 @@ class BeerMapperDecoratorTest {
     private BeerMapperDecorator decorator;
 
     @Test
-    void shouldMapToDto() {
+    void shouldMapToDtoWithDto() {
         Beer beer = Beer.builder().beerName("test").id(UUID.randomUUID()).build();
         int numInHand = 15;
         when(inventoryService.getOnHandInventory(beer.getId())).thenReturn(numInHand);
 
-        BeerDto beerDto = decorator.beer2BeerDto(beer);
+        BeerDto beerDto = decorator.beer2BeerDtoWithInventory(beer);
 
         assertThat(beerDto.getQuantityInHand(), Matchers.equalTo(numInHand));
     }
