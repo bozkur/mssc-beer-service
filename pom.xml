@@ -36,6 +36,14 @@
         </dependency>
     </dependencies>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub OWNER Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/bozkur/mssc-brewery-bom</url>
+        </repository>
+    </distributionManagement>
+
     <build>
         <plugins>
             <plugin>
