@@ -2,11 +2,16 @@ package guru.springframework.msscbeerservice.bootstrap;
 
 import guru.springframework.msscbeerservice.domain.Beer;
 import guru.springframework.msscbeerservice.repositories.BeerRepository;
+import guru.springframework.msscbeerservice.web.model.BeerStyle;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.stream.Stream;
 
-//@Component
+@Component
 public class BootLoader implements CommandLineRunner {
 
     public static final String BEER1_UPC = "0631234200036";
@@ -24,25 +29,27 @@ public class BootLoader implements CommandLineRunner {
     }
 
     private void loadBeers() {
-        Beer efes = Beer.builder().beerName("Efes Pilsen")
-                .beerStyle("PALE")
-                .price(new BigDecimal("38.00"))
-                .upc(BEER1_UPC)
-                .minOnHand(100)
-                .quantityToBrew(200)
-                .minOnHand(12)
-                .build();
-        Beer em = Beer.builder().beerName("Edelmeister 0.0")
-                .beerStyle("LAGER")
-                .price(new BigDecimal("19.90"))
-                .upc(BEER2_UPC)
-                .minOnHand(100)
-                .quantityToBrew(12)
-                .build();
+        Beer mangoBobs = createBeer("Mango Bobs", BeerStyle.IPA, new BigDecimal("12.95"), 12, 200, BEER1_UPC);
+        Beer galaxyCat = createBeer("Galaxy Cat", BeerStyle.PALE_ALE, new BigDecimal("12.95"), 12, 200, BEER2_UPC);
+        Beer pinballPorter = createBeer("Pinball Porter", BeerStyle.PORTER, new BigDecimal("12.95"), 12, 200, BEER3_UPC);
 
         if (beerRepository.count() == 0) {
-            beerRepository.save(efes);
-            beerRepository.save(em);
+            Stream.of(mangoBobs, galaxyCat, pinballPorter).forEach(beerRepository::save);
         }
+    }
+
+    private Beer createBeer(String name, BeerStyle style, BigDecimal price, int minOnHand,
+                            int quantityToBrew, String upc) {
+        return Beer.builder().beerName(name)
+                .beerStyle(style.toString())
+                .price(price)
+                .upc(upc)
+                .minOnHand(minOnHand)
+                .quantityToBrew(quantityToBrew)
+                .createdDate(Timestamp.from(Instant.now()))
+                .lastModifiedDate(Timestamp.from(Instant.now()))
+                .version(1L)
+                .build();
+
     }
 }
