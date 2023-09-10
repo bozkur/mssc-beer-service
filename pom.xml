@@ -11,6 +11,13 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>mssc-beer-service</name>
     <description>mssc-beer-service</description>
+    <repositories>
+        <repository>
+            <id>github</id>
+            <name>GitHub OWNER Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/bozkur/mssc-brewery-bom</url>
+        </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
