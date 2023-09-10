@@ -16,16 +16,21 @@ jobs:
     # Add steps to the job
     # See: https://circleci.com/docs/configuration-reference/#steps
     steps:
+      - run:
+          name: Create settings.xml
+          command: echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?><settings xmlns=\"http://maven.apache.org/SETTINGS/1.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd\"><servers><server><id>github</id>
+            <username>bozkur@gmail.com</username>
+            <password>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</password></server></servers></settings>" > settings.xml
       # Checkout the code as the first step.
       - checkout
       # Use mvn clean and package as the standard maven build phase
       - run:
           name: Build
-          command: mvn -U -B -DskipTests clean package
+          command: mvn -s settings.xml -B -DskipTests clean package
       # Then run your tests!
       - run:
           name: Test
-          command: mvn test
+          command: mvn -s settings.xml test
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
