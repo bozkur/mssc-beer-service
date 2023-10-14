@@ -2,7 +2,7 @@ package guru.springframework.msscbeerservice.web.mappers;
 
 import guru.springframework.msscbeerservice.domain.Beer;
 import guru.springframework.msscbeerservice.services.inventory.BeerInventoryService;
-import guru.springframework.msscbeerservice.web.model.BeerDto;
+import guru.springframework.brewery.model.BeerDto;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -2,7 +2,7 @@ package guru.springframework.msscbeerservice.bootstrap;
 
 import guru.springframework.msscbeerservice.domain.Beer;
 import guru.springframework.msscbeerservice.repositories.BeerRepository;
-import guru.springframework.msscbeerservice.web.model.BeerStyle;
+import guru.springframework.brewery.model.BeerStyle;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 

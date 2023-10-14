@@ -1,4 +1,4 @@
-package guru.springframework.msscbeerservice.web.model;
+package guru.springframework.brewery.model;
 
 public enum BeerStyle {
     LAGER,
