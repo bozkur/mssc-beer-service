@@ -38,7 +38,7 @@ public class BeerInventoryServiceRestTemplate implements BeerInventoryService {
 
         return Objects.requireNonNull(responseEntity.getBody())
                 .stream()
-                .mapToInt(BeerInventoryDto::getQuantityInHand)
+                .mapToInt(BeerInventoryDto::getQuantityOnHand)
                 .sum();
     }
 }
