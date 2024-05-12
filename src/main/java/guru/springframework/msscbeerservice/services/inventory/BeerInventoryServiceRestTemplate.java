@@ -28,8 +28,10 @@ public class BeerInventoryServiceRestTemplate implements BeerInventoryService {
     @Value("${sfg.brewery.beer-inventory-service-host}")
     private String beerInventoryHost;
 
-    public BeerInventoryServiceRestTemplate(RestTemplateBuilder restTemplateBuilder) {
-        this.restTemplate = restTemplateBuilder.build();
+    public BeerInventoryServiceRestTemplate(RestTemplateBuilder restTemplateBuilder, @Value("${sfg.brewery.inventory-user}") String username,
+                                            @Value("${sfg.brewery.inventory-password}") String password) {
+        this.restTemplate = restTemplateBuilder
+                .basicAuthentication(username, password).build();
     }
 
     @Override
