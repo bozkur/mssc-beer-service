@@ -1,0 +1,99 @@
+version: '3.8'
+services:
+  jms:
+    image: apache/activemq-artemis
+    ports:
+      - 8161:8161
+      - 61616:61616
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - 9411:9411
+  eureka:
+    image: bozkur/mssc-brewery-eureka
+    ports:
+      - 8761:8761
+  configserver:
+    image: sfgbeerworks/mssc-config-server
+    ports:
+      - 8888:8888
+    depends_on:
+      - eureka
+    environment:
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://netflix:eureka@eureka:8761/eureka
+      EUREKA_INSTANCE_HOSTNAME: configserver
+  inventory-service:
+    image: bozkur/mssc-beer-inventory-service
+    ports:
+      - 8082:8082
+    depends_on:
+      - eureka
+      - jms
+      - configserver
+    environment:
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://netflix:eureka@eureka:8761/eureka
+      SPRING_PROFILES_ACTIVE: localmysql,local-discovery
+      SPRING_CLOUD_DISCOVERY_ENABLED: true
+      SPRING_ZIPKIN_BASEURL: http://zipkin
+      SPRING_ARTEMIS_BROKER-URL: tcp://jms:61616
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/beerinventoryservice?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+  inventory-failover:
+    image: bozkur/mssc-beer-inventory-failover-service
+    ports:
+      - 8083:8083
+    depends_on:
+      - eureka
+      - configserver
+    environment:
+       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://netflix:eureka@eureka:8761/eureka
+       SPRING_PROFILES_ACTIVE: local-discovery
+  beer-service:
+    image: bozkur/mssc-beer-service
+    ports:
+      - 8080:8080
+    depends_on:
+      - eureka
+      - jms
+      - configserver
+      - inventory-service
+    environment:
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://netflix:eureka@eureka:8761/eureka
+      SPRING_PROFILES_ACTIVE: localmysql,local-discovery
+      SPRING_CLOUD_DISCOVERY_ENABLED: true
+      SPRING_ZIPKIN_BASEURL: http://zipkin
+      SPRING_ARTEMIS_BROKER-URL: tcp://jms:61616
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/beerservice?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+  beer-order-service:
+    image: bozkur/mssc-beer-order-service
+    ports:
+      - 8081:8081
+    depends_on:
+      - eureka
+      - jms
+      - configserver
+      - beer-service
+    environment:
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://netflix:eureka@eureka:8761/eureka
+      SPRING_PROFILES_ACTIVE: localmysql,local-discovery
+      SPRING_CLOUD_DISCOVERY_ENABLED: true
+      SPRING_ZIPKIN_BASEURL: http://zipkin
+      SPRING_ARTEMIS_BROKER-URL: tcp://jms:61616
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/beerorderservice?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+      SFG_BREWERY_BEER_SERVICE_HOST: http://beer-service:8080
+  gateway:
+    image: bozkur/mssc-brewery-gateway
+    ports:
+      - 9090:9090
+    depends_on:
+      - eureka
+      - zipkin
+      - configserver
+      - inventory-service
+      - beer-service
+      - beer-order-service
+      - inventory-failover
+    environment:
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://netflix:eureka@eureka:8761/eureka
+      SPRING_PROFILES_ACTIVE: local-discovery
+
+
