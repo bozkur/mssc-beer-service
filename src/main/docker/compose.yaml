@@ -22,6 +22,7 @@ services:
     environment:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://netflix:eureka@eureka:8761/eureka
       EUREKA_INSTANCE_HOSTNAME: configserver
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: true
   inventory-service:
     image: bozkur/mssc-beer-inventory-service
     ports:
@@ -32,6 +33,7 @@ services:
       - configserver
     environment:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://netflix:eureka@eureka:8761/eureka
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: true
       SPRING_PROFILES_ACTIVE: localmysql,local-discovery
       SPRING_CLOUD_DISCOVERY_ENABLED: true
       SPRING_ZIPKIN_BASEURL: http://zipkin
@@ -46,6 +48,7 @@ services:
       - configserver
     environment:
        EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://netflix:eureka@eureka:8761/eureka
+       EUREKA_INSTANCE_PREFER_IP_ADDRESS: true
        SPRING_PROFILES_ACTIVE: local-discovery
   beer-service:
     image: bozkur/mssc-beer-service
@@ -58,6 +61,7 @@ services:
       - inventory-service
     environment:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://netflix:eureka@eureka:8761/eureka
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: true
       SPRING_PROFILES_ACTIVE: localmysql,local-discovery
       SPRING_CLOUD_DISCOVERY_ENABLED: true
       SPRING_ZIPKIN_BASEURL: http://zipkin
@@ -74,6 +78,7 @@ services:
       - beer-service
     environment:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://netflix:eureka@eureka:8761/eureka
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: true
       SPRING_PROFILES_ACTIVE: localmysql,local-discovery
       SPRING_CLOUD_DISCOVERY_ENABLED: true
       SPRING_ZIPKIN_BASEURL: http://zipkin
@@ -94,6 +99,7 @@ services:
       - inventory-failover
     environment:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://netflix:eureka@eureka:8761/eureka
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: true
       SPRING_PROFILES_ACTIVE: local-discovery
 
 
