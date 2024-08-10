@@ -39,6 +39,7 @@ services:
       SPRING_ZIPKIN_BASEURL: http://zipkin
       SPRING_ARTEMIS_BROKER-URL: tcp://jms:61616
       SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/beerinventoryservice?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    restart: on-failure
   inventory-failover:
     image: bozkur/mssc-beer-inventory-failover-service
     ports:
@@ -67,6 +68,7 @@ services:
       SPRING_ZIPKIN_BASEURL: http://zipkin
       SPRING_ARTEMIS_BROKER-URL: tcp://jms:61616
       SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/beerservice?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
+    restart: on-failure
   beer-order-service:
     image: bozkur/mssc-beer-order-service
     ports:
@@ -85,6 +87,7 @@ services:
       SPRING_ARTEMIS_BROKER-URL: tcp://jms:61616
       SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/beerorderservice?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
       SFG_BREWERY_BEER_SERVICE_HOST: http://beer-service:8080
+    restart: on-failure
   gateway:
     image: bozkur/mssc-brewery-gateway
     ports:
